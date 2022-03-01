@@ -20,7 +20,7 @@ router.get("/user/logout", auth, async (req, res) => {
 
 
 // Login User   
-router.post("/login", async (req, res) => {
+router.post("/user/login", async (req, res) => {
 
     const user = await User.findByCredentials(req.body.email, req.body.password)
     const token = await user.generateToken()
@@ -84,6 +84,8 @@ router.patch("/user/me", auth, async (req, res) => {
 
 // Create user
 router.post("/user", async (req, res) => {
+    console.log('req',req.body);
+    
     try {
         const user = new User(req.body)
         const token = await user.generateToken()
