@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "server-dev": "nodemon server/index.js"
+    "backend": "env-cmd -f ./server/config/dev.env nodemon server/index.js"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -24,6 +24,7 @@
     "@vue/cli-plugin-babel": "~5.0.0",
     "@vue/cli-plugin-eslint": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
+    "env-cmd": "^10.1.0",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
     "nodemon": "^2.0.15"

@@ -1,10 +1,51 @@
 const express = require("express")
+const auth = require("../middleware/auth")
 const User = require("../models/User")
 const router = express.Router()
 
 
+
+// Logout User
+router.get("/user/logout", auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter(item => item.token !== req.token)
+        await req.user.save()
+
+        res.send().status(200)
+
+    } catch (error) {
+        res.status(500).send(error)
+    }
+})
+
+
+// Login User
+router.post("/login", async (req, res) => {
+
+    const user = await User.findByCredentials(req.body.email, req.body.password)
+    const token = await user.generateToken()
+
+    try {
+        if (!user) throw new Error()
+        res.send({ user, token }).status(200)
+    } catch (error) {
+        res.status(503).send(error)
+    }
+})
+
+
+// Read me
+router.get("/user/me", auth, async (req, res) => {
+    console.log('Run', req.user);
+
+    res.send(req.user).status(200)
+
+})
+
+
 // Remove User
-router.delete("/user/:id", async (req, res) => {
+// Not auth converted yet
+router.delete("/user/me", auth, async (req, res) => {
     try {
         const user = await User.findOneAndRemove({ _id: req.params.id })
         if (!user) throw new Error()
@@ -14,26 +55,13 @@ router.delete("/user/:id", async (req, res) => {
     }
 })
 
-// Read User
-router.get("/user", async (req, res) => {
-    const user = await User.find({})
-
-    try {
-
-        res.send(user).status(200)
-
-    } catch (error) {
-
-        res.status(500).send("Didn't find any users", error)
-    }
-
-})
 
 
 // Edit user
-router.patch("/user/:id", async (req, res) => {
+// Not auth converted yet
+router.patch("/user/:id", auth, async (req, res) => {
     // Set params for whats allowed to change
-    const allowedField = ["title", "done"]
+    const allowedField = ["name", "password", "email"]
     const reqChange = Object.keys(req.body)
     const isAllowed = reqChange.every(field => allowedField.includes(field))
 
@@ -52,12 +80,14 @@ router.patch("/user/:id", async (req, res) => {
         })
 
         await user.save()
-
         res.send(user).status(200)
+
     } catch (error) {
         res.status(500).send(error)
     }
 })
+
+
 
 // Create user
 router.post("/user", async (req, res) => {
@@ -65,9 +95,8 @@ router.post("/user", async (req, res) => {
         const user = new User(req.body)
         const token = await user.generateToken()
 
-        console.log(user);
         await user.save()
-        res.send({user, token}).status(201)
+        res.send({ user, token }).status(201)
     } catch (error) {
         res.status(500).send(error)
     }
