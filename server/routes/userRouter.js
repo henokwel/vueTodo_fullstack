@@ -19,7 +19,7 @@ router.get("/user/logout", auth, async (req, res) => {
 })
 
 
-// Login User
+// Login User   
 router.post("/login", async (req, res) => {
 
     const user = await User.findByCredentials(req.body.email, req.body.password)
@@ -36,10 +36,7 @@ router.post("/login", async (req, res) => {
 
 // Read me
 router.get("/user/me", auth, async (req, res) => {
-    console.log('Run', req.user);
-
     res.send(req.user).status(200)
-
 })
 
 
@@ -56,11 +53,11 @@ router.delete("/user/me", auth, async (req, res) => {
 })
 
 
-
 // Edit user
 // Not auth converted yet
-router.patch("/user/:id", auth, async (req, res) => {
+router.patch("/user/me", auth, async (req, res) => {
     // Set params for whats allowed to change
+    console.log("REQ =>", req.user);
     const allowedField = ["name", "password", "email"]
     const reqChange = Object.keys(req.body)
     const isAllowed = reqChange.every(field => allowedField.includes(field))
@@ -68,24 +65,20 @@ router.patch("/user/:id", auth, async (req, res) => {
     if (!isAllowed) return res.status(400).send("Not Allowed!")
 
     try {
-        console.log('body', req.body);
-
-        //req.params to get id
-        const user = await User.findOne({ _id: req.params.id })
-
-        if (!user) return res.status(404).send("user not found")
 
         reqChange.forEach(field => {
-            user[field] = req.body[field]
+            req.user[field] = req.body[field]
         })
 
-        await user.save()
-        res.send(user).status(200)
+        await req.user.save()
+        res.send(req.user).status(200)
 
     } catch (error) {
         res.status(500).send(error)
     }
 })
+
+
 
 
 
