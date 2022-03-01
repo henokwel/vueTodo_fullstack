@@ -16,7 +16,8 @@
     "mongodb": "^4.4.0",
     "mongoose": "^6.2.3",
     "validator": "^13.7.0",
-    "vue": "^3.2.13"
+    "vue": "^3.2.13",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
