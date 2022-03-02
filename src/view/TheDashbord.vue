@@ -1,56 +1,70 @@
 
 <script>
 import { ref, onMounted } from "vue";
+import TaskCard from "@/components/TaskCard.vue";
 export default {
+  components: { TaskCard },
+
   setup() {
     const title = ref("");
     const done = ref(false);
     const tasksArray = ref([]);
+    const fetchStatus = ref(false);
+
+    // main data fetching method
+
+    const fetch_db_Data = async () => {
+      try {
+        const req = await fetch("api/task");
+        const res = await req.json();
+        tasksArray.value = [...res];
+      } catch (error) {
+        fetchStatus.value = true;
+      }
+    };
 
     onMounted(async () => {
-      console.log("Runn onMOunt");
-
-      // fetch
-      const req = await fetch("api/task");
-      const res = await req.json();
-
-      console.log("res", res);
-
-      tasksArray.value = [...res];
+      // fetch data when you load Page
+      fetch_db_Data();
     });
 
     const handleSubmit = async () => {
-      const newUserTask = {
-        title: title.value,
-        done: done.value,
-      };
-
       try {
+        const newUserTask = {
+          title: title.value,
+          done: done.value,
+        };
+
         const req = await fetch("api/task", {
           method: "POST",
-          mode: "same-origin", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
+          mode: "same-origin",
+          cache: "no-cache",
+          credentials: "same-origin", //
           headers: {
             "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: JSON.stringify(newUserTask),
         });
 
         if (req.status === 201) {
-          // push local array state
+          title.value = "";
+          done.value = false;
+          // Fetch fresh data after you create new tasks
+          fetch_db_Data();
         }
-
-        console.log("req", req);
       } catch (error) {
         alert("Error", error);
       }
     };
 
-    console.log("Array", tasksArray);
-
-    return { title, done, handleSubmit, tasksArray };
+    return {
+      title,
+      done,
+      handleSubmit,
+      tasksArray,
+      fetch_db_Data,
+      fetchStatus,
+    };
   },
 };
 </script>
@@ -77,9 +91,16 @@ export default {
 
     <section id="lists">
       <h1>Card list here</h1>
-      <ul>
-        <li v-for="task in tasksArray" :key="task._id">{{ task.title }}</li>
-      </ul>
+      <div v-if="fetchStatus">
+        <h3>Server Fetch Fail</h3>
+        <p>Don't forget to start server / <code>yarn backend</code></p>
+      </div>
+
+      <div id="listsContainer">
+        <div v-for="task in tasksArray" :key="task._id">
+          <TaskCard :task="task" />
+        </div>
+      </div>
     </section>
   </main>
 </template>
@@ -89,18 +110,20 @@ export default {
 main {
   height: 100vh;
   width: 100%;
+
   /* background: #868279; */
-}
-ul {
-  height: 400px;
-  width: 100%;
-  background: black;
 }
 
 #lists {
-  background: red;
+  /* background: red; */
   color: white;
-  height: 100%;
+  /* height: 60%; */
+}
+
+#listsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  /* background-color: rebeccapurple; */
 }
 
 #form-container {

@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "backend": "env-cmd -f ./server/config/dev.env nodemon server/index.js"
-  },
+   },
   "dependencies": {
     "bcrypt": "^5.0.1",
     "core-js": "^3.8.3",
