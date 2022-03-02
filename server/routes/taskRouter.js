@@ -65,9 +65,9 @@ router.post("/task", async (req, res) => {
         const task = new Task(req.body)
         console.log(task);
         await task.save()
-        res.send(task).status(201)
+        res.status(201).send(task)
     } catch (error) {
-        res.status(502).send(error)
+        res.status(500).send(error)
     }
 })
 

@@ -84,14 +84,14 @@ router.patch("/user/me", auth, async (req, res) => {
 
 // Create user
 router.post("/user", async (req, res) => {
-    console.log('req',req.body);
-    
+    console.log('req', req.body);
+
     try {
         const user = new User(req.body)
         const token = await user.generateToken()
 
         await user.save()
-        res.send({ user, token }).status(201)
+        res.status(201).send({ user, token })
     } catch (error) {
         res.status(500).send(error)
     }
