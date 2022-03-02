@@ -153,6 +153,15 @@ section {
   /* background: white; */
 }
 
+  input[type="text"] {
+      border: none;
+      padding: 3px;
+      font-size: 17px;
+      /* height: 20px; */
+  border-radius: 0px;
+    border-top-left-radius: 6px;
+
+}
 #btn-container {
   display: flex;
   flex-direction: row;
