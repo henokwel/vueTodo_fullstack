@@ -21,40 +21,66 @@ export default {
     //   console.log("props done update", props.task.done);
     // });
 
+    const handleRequest = async (type, { load, id }) => {
+      // hande RUD operation
+      // new object with dynamic key:value
+      const taskObject = { [type]: load };
+
+      try {
+        const req = await fetch(`api/task/${id}`, {
+          method: "PATCH",
+          mode: "same-origin",
+          cache: "no-cache",
+          credentials: "same-origin", //
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(taskObject),
+        });
+
+        if (req.status === 200) {
+          // Toggle back to normal after edit finsih
+          editToggle.value = false;
+        } else throw new Error();
+      } catch (error) {
+        throw new Error(error);
+      }
+    };
+
     const handleChange = async (type) => {
+      // check if both value have change
+      if (title.value !== props.task.title && done.value !== props.task.done) {
+        console.log("Dubble trouble");
+      }
+
       switch (type) {
         case "title":
           // check if value have change, if not return
-          if (title.value === props.task.title) return;
+          if (title.value === props.task.title) {
+            return (editToggle.value = false);
+          }
 
-          // Make http call
           try {
-            const req = await fetch(`api/task/${_id.value}`, {
-              method: "PATCH",
-              mode: "same-origin",
-              cache: "no-cache",
-              credentials: "same-origin", //
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ title: title.value }),
+            await handleRequest("title", {
+              load: title.value,
+              id: _id.value,
             });
-
-            if (req.status === 200) {
-              // Fetch fresh data after you create new tasks
-              console.log("Title Changed of _id", _id.value);
-              editToggle.value = false;
-            }
           } catch (error) {
             console.log("Title didnt change ");
           }
-
           break;
+
         case "done":
-          done.value !== props.task.done
-            ? // patch
-              console.log("changed")
-            : console.log("Not changed");
+          if (done.value === props.task.done) return;
+
+          try {
+            await handleRequest("done", {
+              load: done.value,
+              id: _id.value,
+            });
+          } catch (error) {
+            console.log("Done didnt change ");
+          }
 
           break;
         default:
@@ -80,7 +106,7 @@ export default {
 
       <label v-show="editToggle">
         Title =>
-        <input type="text" v-model="title" />
+        <input type="text" v-model.trim="title" />
       </label>
 
       <br />
@@ -96,7 +122,7 @@ export default {
     </div>
     <div id="btn-container">
       <button>Remove</button>
-      <button @click="handleChange('title')">Save</button>
+      <button @click="handleChange('both')">Save</button>
     </div>
   </section>
 </template>
@@ -111,6 +137,7 @@ section {
   width: 300px;
   height: 200px;
   background: #2f2b22;
+  border-top-left-radius: 20px;
 
   margin: 10px;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
