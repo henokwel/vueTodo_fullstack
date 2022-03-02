@@ -1,13 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LandingPage from '@/view/TheLandingPage.vue'
+// import LandingPage from '@/view/TheLandingPage.vue'
 import TheSignIn from '@/view/TheSignIn.vue'
 import TheSignUp from '@/view/TheSignUp.vue'
+import TheDashbord from '@/view/TheDashbord.vue'
 
 const routes = [
     {
         path: "/",
-        name: "LandingPage",
-        component: LandingPage,
+        name: "TheDashbord",
+        component: TheDashbord,
     },
     {
         path: "/signup",
