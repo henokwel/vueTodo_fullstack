@@ -7,7 +7,7 @@ export default {
       type: Object,
     },
   },
-  setup(props) {
+  setup(props, { emit }) {
     const title = ref(props.task.title);
     const done = ref(props.task.done);
     const _id = ref(props.task._id);
@@ -21,22 +21,29 @@ export default {
     //   console.log("props done update", props.task.done);
     // });
 
-    const handleRequest = async (type, { load, id }) => {
+    const handleRequest = async (key, { load, id }, method) => {
       // hande RUD operation
       // new object with dynamic key:value
-      const taskObject = { [type]: load };
+      const taskObject = { [key]: load };
+
+      console.log("==>", method);
 
       try {
-        const req = await fetch(`api/task/${id}`, {
-          method: "PATCH",
-          mode: "same-origin",
-          cache: "no-cache",
-          credentials: "same-origin", //
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(taskObject),
-        });
+        const req = await fetch(
+          `api/task/${id}`,
+          // If method is delete you don't send body
+          {
+            method: method,
+            mode: "same-origin",
+            cache: "no-cache",
+            credentials: "same-origin", //
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify(taskObject),
+          }
+        );
 
         if (req.status === 200) {
           // Toggle back to normal after edit finsih
@@ -61,10 +68,14 @@ export default {
           }
 
           try {
-            await handleRequest("title", {
-              load: title.value,
-              id: _id.value,
-            });
+            await handleRequest(
+              "title",
+              {
+                load: title.value,
+                id: _id.value,
+              },
+              "PATCH"
+            );
           } catch (error) {
             console.log("Title didnt change ");
           }
@@ -74,14 +85,30 @@ export default {
           if (done.value === props.task.done) return;
 
           try {
-            await handleRequest("done", {
-              load: done.value,
-              id: _id.value,
-            });
+            await handleRequest(
+              "done",
+              {
+                load: done.value,
+                id: _id.value,
+              },
+              "PATCH"
+            );
           } catch (error) {
             console.log("Done didnt change ");
           }
 
+          break;
+        case "delete":
+          console.log("Delete");
+
+          {
+            try {
+              await handleRequest("", { load: "", id: _id.value }, "DELETE");
+              emit("remove-card", _id.value);
+            } catch (error) {
+              console.log("Delete didnt delete ");
+            }
+          }
           break;
         default:
           break;
@@ -121,8 +148,9 @@ export default {
       </label>
     </div>
     <div id="btn-container">
-      <button>Remove</button>
-      <button @click="handleChange('both')">Save</button>
+      <button @click="handleChange('delete')">Remove</button>
+      <!-- <button @click="$emit('remove-card', _id)">Remove</button> -->
+      <button @click="handleChange('title')">Save</button>
     </div>
   </section>
 </template>

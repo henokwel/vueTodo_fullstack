@@ -28,6 +28,11 @@ export default {
       fetch_db_Data();
     });
 
+    const handleRemove = (e) => {
+      console.log("HandleRemove", e);
+      fetch_db_Data();
+    };
+
     const handleSubmit = async () => {
       try {
         const newUserTask = {
@@ -64,6 +69,7 @@ export default {
       tasksArray,
       fetch_db_Data,
       fetchStatus,
+      handleRemove,
     };
   },
 };
@@ -98,7 +104,7 @@ export default {
 
       <div id="listsContainer">
         <div v-for="task in tasksArray" :key="task._id">
-          <TaskCard :task="task" />
+          <TaskCard @remove-card="handleRemove" :task="task" />
         </div>
       </div>
     </section>
