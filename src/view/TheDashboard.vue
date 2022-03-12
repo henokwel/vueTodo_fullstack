@@ -1,87 +1,95 @@
 
-<script>
-import { ref, onMounted } from "vue";
+<script setup>
 import TaskCard from "@/components/TaskCard.vue";
-export default {
-  components: { TaskCard },
+import { ref, onMounted } from "vue";
 
-  setup() {
-    const title = ref("");
-    const done = ref(false);
-    const tasksArray = ref([]);
-    const fetchStatus = ref(false);
+const title = ref("");
+const done = ref(false);
+const tasksArray = ref([]);
+const fetchStatus = ref(false);
+const userInfo = ref({});
 
-    // main data fetching method
+// main data fetching method
 
-    const fetch_db_Data = async () => {
-      try {
-        const req = await fetch("api/task");
-        const res = await req.json();
-        tasksArray.value = [...res];
-      } catch (error) {
-        fetchStatus.value = true;
-      }
+const fetch_db_Data = async () => {
+  try {
+    const req = await fetch("api/task");
+    const res = await req.json();
+    tasksArray.value = [...res];
+  } catch (error) {
+    fetchStatus.value = true;
+  }
+};
+
+onMounted(async () => {
+  // fetch data when you load Page
+  // fetch_db_Data();
+
+  try {
+    const userData = window.localStorage.getItem("user");
+    const resData = JSON.parse(userData);
+    userInfo.value = resData.user;
+    // console.log(userInfo.value.user.name);
+
+    // fetch logged in user info
+    // const userData = window.localStorage.getItem("user");
+    // console.log("userData", userData);
+    // if (!userData) throw new Error();
+    // userInfo.value = JSON.parse(userData);
+    // const userResponse = await JSON.parse(userData);
+    // userInfo.value =  JSON.parse(userData)
+    // user.value = userResponse;
+  } catch (error) {
+    console.log("/DashBoard", error);
+  }
+});
+
+console.log(userInfo.value);
+
+const handleRemove = (e) => {
+  console.log("HandleRemove", e);
+  fetch_db_Data();
+};
+
+const handleSubmit = async () => {
+  try {
+    const newUserTask = {
+      title: title.value,
+      done: done.value,
     };
 
-    onMounted(async () => {
-      // fetch data when you load Page
-      fetch_db_Data();
-
-      
+    const req = await fetch("api/task", {
+      method: "POST",
+      mode: "same-origin",
+      cache: "no-cache",
+      credentials: "same-origin", //
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUserTask),
     });
 
-    const handleRemove = (e) => {
-      console.log("HandleRemove", e);
+    if (req.status === 201) {
+      title.value = "";
+      done.value = false;
+      // Fetch fresh data after you create new tasks
       fetch_db_Data();
-    };
-
-    const handleSubmit = async () => {
-      try {
-        const newUserTask = {
-          title: title.value,
-          done: done.value,
-        };
-
-        const req = await fetch("api/task", {
-          method: "POST",
-          mode: "same-origin",
-          cache: "no-cache",
-          credentials: "same-origin", //
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(newUserTask),
-        });
-
-        if (req.status === 201) {
-          title.value = "";
-          done.value = false;
-          // Fetch fresh data after you create new tasks
-          fetch_db_Data();
-        }
-      } catch (error) {
-        alert("Error", error);
-      }
-    };
-
-    return {
-      title,
-      done,
-      handleSubmit,
-      tasksArray,
-      fetch_db_Data,
-      fetchStatus,
-      handleRemove,
-    };
-  },
+    }
+  } catch (error) {
+    alert("Error", error);
+  }
 };
 </script>
  
 
 
+
 <template>
   <main>
     <section id="form-container">
+      <div>
+        <h4>{{ userInfo }}</h4>
+      </div>
       <form @submit.prevent>
         <!-- Title -->
         <label for="title">
@@ -118,6 +126,7 @@ export default {
 main {
   height: 100vh;
   width: 100%;
+  color: white;
 
   /* background: #868279; */
 }
