@@ -26,6 +26,8 @@ export default {
     onMounted(async () => {
       // fetch data when you load Page
       fetch_db_Data();
+
+      
     });
 
     const handleRemove = (e) => {

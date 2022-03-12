@@ -1,27 +1,32 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// import LandingPage from '@/view/TheLandingPage.vue'
-import TheSignIn from '@/view/TheSignIn.vue'
-import TheSignUp from '@/view/TheSignUp.vue'
-import TheDashbord from '@/view/TheDashbord.vue'
 
+ 
 const routes = [
     {
         path: "/",
-        name: "TheDashbord",
-        component: TheDashbord,
+        name: "LandingPage",
+        meta: { auth: false },
+        component: () => import('@/view/TheLandingPage.vue')
     },
     {
         path: "/signup",
         name: "TheSignUp",
-        component: TheSignUp,
+        meta: { auth: false },
+        component: () => import('@/view/TheSignUp.vue')
     },
     {
         path: "/signin",
         name: "TheSignIn",
-        component: TheSignIn,
+        meta: { auth: false },
+        component: () => import('@/view/TheSignIn.vue')
     },
+    {
+        path:"/dashboard",
+        name:"TheDashboard",
+        meta: { auth: true },
+        component: () => import('@/view/TheDashboard.vue')
+    }
 ];
-
 
 
 
