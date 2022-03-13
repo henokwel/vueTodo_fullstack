@@ -36,7 +36,7 @@ export default {
         // then push route to /dashboard
         const res = await req.json();
         window.localStorage.setItem("user", JSON.stringify(res));
-        router.push("/dashboard");
+        router.push("/signin");
         
       } catch (error) {
         alert("Error", error);

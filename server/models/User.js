@@ -5,6 +5,12 @@ const { model } = require("mongoose")
 const userSchema = require("../schema/userSchema.js")
 
 
+userSchema.virtual("tasks", {
+    ref: "Task",
+    "localField": "_id",
+    "foreignField": "owner"
+})
+
 
 userSchema.methods.toJSON = function () {
     const user = this
@@ -23,9 +29,9 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
     // compare password hash
 
-    const isMatch = await compare(password,user.password)
+    const isMatch = await compare(password, user.password)
 
-    if(!isMatch) throw new Error("Unable to log in")
+    if (!isMatch) throw new Error("Unable to log in")
 
     return user
 

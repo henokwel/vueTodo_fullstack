@@ -6,6 +6,9 @@ export default {
     task: {
       type: Object,
     },
+    token: {
+      type: String,
+    },
   },
   setup(props, { emit }) {
     const title = ref(props.task.title);
@@ -39,6 +42,7 @@ export default {
             credentials: "same-origin", //
             headers: {
               "Content-Type": "application/json",
+              "Authorization": `Bearer ${props.token}`,
             },
 
             body: JSON.stringify(taskObject),
@@ -46,7 +50,7 @@ export default {
         );
 
         if (req.status === 200) {
-          // Toggle back to normal after edit finsih
+          // Toggle back to normal after edit Finnish
           editToggle.value = false;
         } else throw new Error();
       } catch (error) {
@@ -77,7 +81,7 @@ export default {
               "PATCH"
             );
           } catch (error) {
-            console.log("Title didnt change ");
+            console.log("Title didn't change ");
           }
           break;
 
@@ -94,7 +98,7 @@ export default {
               "PATCH"
             );
           } catch (error) {
-            console.log("Done didnt change ");
+            console.log("Done didn't change ");
           }
 
           break;
@@ -106,7 +110,7 @@ export default {
               await handleRequest("", { load: "", id: _id.value }, "DELETE");
               emit("remove-card", _id.value);
             } catch (error) {
-              console.log("Delete didnt delete ");
+              console.log("Delete didn't delete ");
             }
           }
           break;

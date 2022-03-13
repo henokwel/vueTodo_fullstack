@@ -2,18 +2,26 @@
 <script setup>
 import TaskCard from "@/components/TaskCard.vue";
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 
 const title = ref("");
 const done = ref(false);
 const tasksArray = ref([]);
 const fetchStatus = ref(false);
 const userInfo = ref({});
+const token = ref(null);
+const router = useRouter();
 
 // main data fetching method
 
 const fetch_db_Data = async () => {
   try {
-    const req = await fetch("api/task");
+    const req = await fetch("api/task/me", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token.value}`,
+      },
+    });
     const res = await req.json();
     tasksArray.value = [...res];
   } catch (error) {
@@ -23,12 +31,12 @@ const fetch_db_Data = async () => {
 
 onMounted(async () => {
   // fetch data when you load Page
-  // fetch_db_Data();
 
   try {
     const userData = window.localStorage.getItem("user");
     const resData = JSON.parse(userData);
     userInfo.value = resData.user;
+    token.value = resData.token;
     // console.log(userInfo.value.user.name);
 
     // fetch logged in user info
@@ -39,18 +47,22 @@ onMounted(async () => {
     // const userResponse = await JSON.parse(userData);
     // userInfo.value =  JSON.parse(userData)
     // user.value = userResponse;
+    fetch_db_Data();
   } catch (error) {
     console.log("/DashBoard", error);
   }
 });
-
-console.log(userInfo.value);
 
 const handleRemove = (e) => {
   console.log("HandleRemove", e);
   fetch_db_Data();
 };
 
+const handleLogout = () => {
+  window.localStorage.removeItem("user");
+
+  router.push({ name: "LandingPage" });
+};
 const handleSubmit = async () => {
   try {
     const newUserTask = {
@@ -65,6 +77,7 @@ const handleSubmit = async () => {
       credentials: "same-origin", //
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token.value}`,
       },
       body: JSON.stringify(newUserTask),
     });
@@ -86,10 +99,15 @@ const handleSubmit = async () => {
 
 <template>
   <main>
+    <div id="userInfo-container">
+      <p><strong>User :</strong> {{ userInfo.name }}</p>
+      <p><strong>Email :</strong> {{ userInfo.email }}</p>
+      <p><strong>_id :</strong> {{ userInfo._id }}</p>
+      <p><strong>token :</strong> {{ token }}</p>
+
+      <button @click="handleLogout">Log out</button>
+    </div>
     <section id="form-container">
-      <div>
-        <h4>{{ userInfo }}</h4>
-      </div>
       <form @submit.prevent>
         <!-- Title -->
         <label for="title">
@@ -114,7 +132,7 @@ const handleSubmit = async () => {
 
       <div id="listsContainer">
         <div v-for="task in tasksArray" :key="task._id">
-          <TaskCard @remove-card="handleRemove" :task="task" />
+          <TaskCard @remove-card="handleRemove" :task="task" :token="token" />
         </div>
       </div>
     </section>
@@ -129,6 +147,19 @@ main {
   color: white;
 
   /* background: #868279; */
+}
+
+#userInfo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  word-break: break-all;
+  margin-left: 10px;
+  font-size: 12px;
+}
+
+#userInfo-container p {
+  margin: 3px;
 }
 
 #lists {
