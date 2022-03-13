@@ -10,6 +10,7 @@ export default {
       type: String,
     },
   },
+
   setup(props, { emit }) {
     const title = ref(props.task.title);
     const done = ref(props.task.done);
@@ -17,7 +18,7 @@ export default {
     const editToggle = ref(false);
     // fn that check prev value and compare
     // if item changed, make request
-    // if not , don't waste my mooneyy!
+    // if not , don't waste my money!
 
     // onUpdated(() => {
     //   console.log("done update", done.value);
@@ -25,11 +26,9 @@ export default {
     // });
 
     const handleRequest = async (key, { load, id }, method) => {
-      // hande RUD operation
+      // handle RUD operation
       // new object with dynamic key:value
       const taskObject = { [key]: load };
-
-      console.log("==>", method);
 
       try {
         const req = await fetch(
@@ -42,7 +41,7 @@ export default {
             credentials: "same-origin", //
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${props.token}`,
+              Authorization: `Bearer ${props.token}`,
             },
 
             body: JSON.stringify(taskObject),
@@ -61,7 +60,7 @@ export default {
     const handleChange = async (type) => {
       // check if both value have change
       if (title.value !== props.task.title && done.value !== props.task.done) {
-        console.log("Dubble trouble");
+        console.log("double trouble");
       }
 
       switch (type) {
@@ -185,14 +184,13 @@ section {
   /* background: white; */
 }
 
-  input[type="text"] {
-      border: none;
-      padding: 3px;
-      font-size: 17px;
-      /* height: 20px; */
+input[type="text"] {
+  border: none;
+  padding: 3px;
+  font-size: 17px;
+  /* height: 20px; */
   border-radius: 0px;
-    border-top-left-radius: 6px;
-
+  border-top-left-radius: 6px;
 }
 #btn-container {
   display: flex;
