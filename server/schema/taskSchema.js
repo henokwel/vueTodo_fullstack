@@ -1,4 +1,4 @@
-const {Schema} = require("mongoose")
+const { Schema } = require("mongoose")
 
 const taskSchema = Schema({
     title: {
@@ -6,9 +6,14 @@ const taskSchema = Schema({
         required: true,
         trim: true
     },
-    done:{
-        type:Boolean,
-        default:false,
+    done: {
+        type: Boolean,
+        default: false,
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "User"
     }
 })
 

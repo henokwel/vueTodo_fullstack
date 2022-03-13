@@ -1,46 +1,45 @@
-
-<script >
+<script setup>
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 
-export default {
-  setup() {
+const email = ref("");
+const password = ref("");
+const router = useRouter();
 
-    const name = ref("");
-    const email = ref("");
-    const password = ref("");
 
-    const handleSubmit = () => {
-  
-      const newUser = {
-        name: name.value,
-        email: email.value,
-        password: password.value,
-      };
 
-      try {
-        const req =  fetch("api/user", {
-          method: "POST",
-          mode: "same-origin", // no-cors, *cors, same-origin
-          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-          credentials: "same-origin", // include, *same-origin, omit
-          headers: {
-            "Content-Type": "application/json",
-            // 'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: JSON.stringify(newUser),
-        });
 
-        if (req.status !== 200) throw new Error()
-          console.log("req", req);
-          
-        
-        
-      } catch (error) {
-        alert("Error", error);
-      }
-    };
+const handleSubmit = async () => {
+  const newUser = {
+    email: email.value,
+    password: password.value,
+  };
 
-    return { name, email, password, handleSubmit };
+  try {
+    const req = await fetch("api/user/login", {
+      method: "POST",
+      mode: "same-origin", // no-cors, *cors, same-origin
+      cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+      credentials: "same-origin", // include, *same-origin, omit
+      headers: {
+        "Content-Type": "application/json",
+        // 'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: JSON.stringify(newUser),
+    });
+
+    if (req.status !== 200) throw new Error();
+
+    // Save user info and token into local storage, for now
+    // then push route to /dashboard
+    const res = await req.json();
+
+    window.localStorage.setItem("user", JSON.stringify(res));
+
+    router.push("/dashboard");
+    
+  } catch (error) {
+    alert("Error", error);
   }
 };
 </script>
@@ -51,11 +50,6 @@ export default {
     <h1>Sign In</h1>
     <section>
       <form @submit.prevent>
-        <!-- Name -->
-        <label for="name">
-          Name: <br /><br />
-          <input v-model.trim="name" type="text" />
-        </label>
         <!-- Email -->
         <label for="email">
           Email: <br /><br />
@@ -67,7 +61,7 @@ export default {
           <input v-model="password" type="password" />
         </label>
       </form>
-      <button @click="handleSubmit">Submit</button>
+      <button @click="handleSubmit">Sign In</button>
     </section>
   </main>
 </template>
@@ -90,10 +84,6 @@ main {
 
   height: 100vh;
   width: 100%;
-  background-image: url("https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1608&q=80");
-  background-position: right; /* Center the image */
-  background-repeat: no-repeat; /* Do not repeat the image */
-  background-size: contain; /* Resize the background image to cover the entire*/
 }
 
 section {

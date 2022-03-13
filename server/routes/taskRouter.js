@@ -1,6 +1,8 @@
 const express = require("express")
+const auth = require("../middleware/auth")
 const Task = require("../models/Task")
 const router = express.Router()
+
 
 
 // Remove Task
@@ -31,7 +33,7 @@ router.get("/task", async (req, res) => {
 
 
 // Edit Task
-router.patch("/task/:id", async (req, res) => {
+router.patch("/task/:id", auth, async (req, res) => {
     // Set params for whats allowed to change
     const allowedField = ["title", "done"]
     const reqChange = Object.keys(req.body)
@@ -43,7 +45,7 @@ router.patch("/task/:id", async (req, res) => {
         console.log('body', req.body);
 
         //req.params to get id
-        const task = await Task.findOne({ _id: req.params.id })
+        const task = await Task.findOne({ _id: req.params.id, owner: req.user._id })
 
         if (!task) return res.status(404).send("Task not found")
 
@@ -59,13 +61,39 @@ router.patch("/task/:id", async (req, res) => {
     }
 })
 
-// Create Task
-router.post("/task", async (req, res) => {
+
+router.get("/task/me", auth, async (req, res) => {
+    const user = await req.user
+
     try {
-        const task = new Task(req.body)
-        console.log(task);
+
+        await user.populate("tasks")
+
+        // const userTasks = await req.user.tasks
+        res.send(user.tasks).status(200)
+
+    } catch (error) {
+        res.status(404).send(error)
+    }
+
+
+})
+
+
+// Create Task
+router.post("/task", auth, async (req, res) => {
+
+    const task = new Task({
+        ...req.body,
+        owner: req.user._id
+    })
+
+    try {
+
+
         await task.save()
         res.status(201).send(task)
+
     } catch (error) {
         res.status(500).send(error)
     }
